@@ -3,8 +3,8 @@
 /// <reference path="numeric-1.2.6.min.js" />
 
 var colors=['lightsalmon', 'lightseagreen', 'antiquewhite', 'aquamarine', 'beige', 'burlywood', 'mistyrose', 'mediumpurple', 'darkcyan', 'darkgray', 'orchid', 'peru', 'dodgerblue', 'aliceblue'];
-var N=800;
-var distMin=10;
+var N=500;
+var distMin=20;
 
 $(document).ready(function () {
 	initEvents($("#myCanvas"));
@@ -81,7 +81,7 @@ function initEvents(canvas) {
 
 	var points=[];	// 頂点の座標群
 	var tri=[];		// 頂点のコネクティビティ
-	var dTri=[];	// DelauneyTriangleクラスのインスタンス配列
+	var head=[];	// DelauneyTriangleクラスのインスタンス配列
 	init();
 
 	var selectPoint=null;
@@ -162,32 +162,36 @@ function initEvents(canvas) {
 		// 三角形分割
 		tri=new DelaunayTriangulation(points, canvasHeight, 0, canvasWidth, 0);
 		// dTriの作成
-		dTri=new Array(tri.length);
-		for(var i=0; i<tri.length; ++i) {
-			dTri[i]=new DelauneyTriangle([points[tri[i][0]], points[tri[i][1]], points[tri[i][2]]], tri[i]);
+		head=new DelauneyTriangle([points[tri[0][0]], points[tri[0][1]], points[tri[0][2]]], tri[0]);
+		var dTriTmp=head;
+		for(var i=1; i<tri.length; ++i) {
+			dTriTmp.push(new DelauneyTriangle([points[tri[i][0]], points[tri[i][1]], points[tri[i][2]]], tri[i]));
+			dTriTmp=dTriTmp.next;
 		}
 		// dTri.adjacentを探索する
 		// すべての辺について総当たりで調べる
 		var foundFlag;
-		for(var i=0; i<dTri.length; ++i) {
+		var focusTri=null;
+		var compTri=null;
+		for(focusTri=head; focusTri!=null; focusTri=focusTri.next) {
 			for(var j=0; j<3; ++j) {
 				// すでに隣接する辺が見つかっていれば飛ばす
-				if(dTri[i].adjacent[j]!=null) {
+				if(focusTri.adjacent[j]!=null) {
 					continue;
 				}
 				// すべての辺と総当たりで照合する
 				foundFlag=false;
-				for(var k=0; k<dTri.length; ++k) {
+				for(compTri=head; compTri!=null; compTri=compTri.next){
 					for(var l=0; l<3; ++l) {
 						if(
-							dTri[i].vertexID[j]==dTri[k].vertexID[(l+1)%3]
+							focusTri.vertexID[j]==compTri.vertexID[(l+1)%3]
 							&&
-							dTri[i].vertexID[(j+1)%3]==dTri[k].vertexID[l]
+							focusTri.vertexID[(j+1)%3]==compTri.vertexID[l]
 							) {
-							dTri[i].adjacent[j]=dTri[k];
-							dTri[i].edgeIDinAdjacent[j]=l;
-							dTri[k].adjacent[l]=dTri[i];
-							dTri[k].edgeIDinAdjacent[l]=j;
+							focusTri.adjacent[j]=compTri;
+							focusTri.edgeIDinAdjacent[j]=l;
+							compTri.adjacent[l]=focusTri;
+							compTri.edgeIDinAdjacent[l]=j;
 							foundFlag=true;
 							break;
 						}
@@ -221,14 +225,13 @@ function initEvents(canvas) {
 
 
 		// triID=0 から順にローソンのアルゴリズムを適用していく
-		var triTmp=dTri[0];
+		var triTmp=head;
 		var triAndEdge=[];
 		var edge=0;
 		var triPath=[];
 		var vEdge, vPt;
 		var isPointInner=false;
 		var edgeTmp;
-		var count=0;
 		while(1) {
 			isPointInner=true;
 			for(var i=0; i<3; ++i) {
@@ -254,7 +257,6 @@ function initEvents(canvas) {
 				triPath.push(triTmp);
 				break;
 			}
-			++count;
 		}
 
 		// ローソンのアルゴリズムの過程で通った三角形
@@ -265,7 +267,7 @@ function initEvents(canvas) {
 
 		// 出発三角形
 		context.fillStyle='green';
-		drawTriangle(dTri[0].vertexID);
+		drawTriangle(head.vertexID);
 
 		// 辺
 		var edgeTri;

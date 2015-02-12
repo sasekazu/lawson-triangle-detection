@@ -11,6 +11,13 @@ function DelauneyTriangle(points, indices){
 	this.edgeIDinAdjacent=[-1,-1,-1];	// adjacentの各要素と対応．adjacent[i]が隣接する辺ID．辺IDはadjacent側のもの．	
 	this.vertexID=numeric.clone(indices);
 	this.init(points);
+	this.prev=null;	// 双方向連結リストの前ポインタ
+	this.next=null;	// 双方向連結リストの次ポインタ
+}
+
+DelauneyTriangle.prototype.push=function (next) {
+	this.next=next;
+	next.prev=this;
 }
 
 DelauneyTriangle.prototype.init = function(points){
