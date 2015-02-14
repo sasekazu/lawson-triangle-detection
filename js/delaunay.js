@@ -6,7 +6,7 @@
 // ドロネー三角形分割用の三角形クラス
 // 引数 points = [[x1,y1],[x2,y2],[x3,y3]]
 // 引数 indices 頂点のインデックス
-function DelauneyTriangle(points, indices){
+function DelaunayTriangle(points, indices){
 	this.adjacent=[null, null, null];	// 隣接する三角形の参照，辺12, 辺23，辺31において隣接する三角形を順に格納する
 	this.edgeIDinAdjacent=[-1,-1,-1];	// adjacentの各要素と対応．adjacent[i]が隣接する辺ID．辺IDはadjacent側のもの．	
 	this.vertexID=numeric.clone(indices);
@@ -15,12 +15,12 @@ function DelauneyTriangle(points, indices){
 	this.next=null;	// 双方向連結リストの次ポインタ
 }
 
-DelauneyTriangle.prototype.push=function (next) {
+DelaunayTriangle.prototype.push=function (next) {
 	this.next=next;
 	next.prev=this;
 }
 
-DelauneyTriangle.prototype.init = function(points){
+DelaunayTriangle.prototype.init = function(points){
 	var v1=numeric.sub(points[1], points[0]);
 	var v2=numeric.sub(points[2], points[0]);
 	// もし，頂点が時計回りならばpoints[1]とpoints[2]を入れ替える

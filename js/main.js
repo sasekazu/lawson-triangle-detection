@@ -18,7 +18,7 @@ function initEvents(canvas) {
 
 	var points=[];	// 頂点の座標群
 	var tri=[];		// 頂点のコネクティビティ
-	var head=[];	// DelauneyTriangleクラスのインスタンス配列
+	var head=[];	// DelaunayTriangleクラスのインスタンス配列
 	init();
 
 	var selectPoint=null;
@@ -79,9 +79,9 @@ function initEvents(canvas) {
 		points = generateRondomPoints(canvasWidth, canvasHeight, distMin, N);
 		// 三角形分割
 		tri=new DelaunayTriangulation(points, canvasHeight, 0, canvasWidth, 0);
-		// DelauneyTriangleオブジェクトの連結リストを作成
-		head = makeDelauneyTriangleList(points, tri);
-		// DelauneyTriangleオブジェクトの隣接関係を作成
+		// DelaunayTriangleオブジェクトの連結リストを作成
+		head = makeDelaunayTriangleList(points, tri);
+		// DelaunayTriangleオブジェクトの隣接関係を作成
 		makeDataStructureForTriangles(head);
 	}
 
@@ -197,13 +197,13 @@ function lawsonTriangleDetection(points, head, newPoint) {
 	return {trianglePath:triPath, triangleAndEdgePath:triAndEdge};
 }
 
-// DelauneyTriangleの連結リストを生成する
+// DelaunayTriangleの連結リストを生成する
 // 連結リストの先頭を返す
-function makeDelauneyTriangleList(points, tri) {
-	var head=new DelauneyTriangle([points[tri[0][0]], points[tri[0][1]], points[tri[0][2]]], tri[0]);
+function makeDelaunayTriangleList(points, tri) {
+	var head=new DelaunayTriangle([points[tri[0][0]], points[tri[0][1]], points[tri[0][2]]], tri[0]);
 	var dTriTmp=head;
 	for(var i=1; i<tri.length; ++i) {
-		dTriTmp.push(new DelauneyTriangle([points[tri[i][0]], points[tri[i][1]], points[tri[i][2]]], tri[i]));
+		dTriTmp.push(new DelaunayTriangle([points[tri[i][0]], points[tri[i][1]], points[tri[i][2]]], tri[i]));
 		dTriTmp=dTriTmp.next;
 	}
 	return head;
@@ -237,7 +237,7 @@ function generateRondomPoints(width, height, distMin, N){
 }
 
 // headを先頭とする連結リストとして格納された
-// DelauneyTriangleオブジェクトのadjacent, edgeIDinAdjacentを作成する
+// DelaunayTriangleオブジェクトのadjacent, edgeIDinAdjacentを作成する
 function makeDataStructureForTriangles(head){
 	// dTri.adjacentを探索する
 	// すべての辺について総当たりで調べる
